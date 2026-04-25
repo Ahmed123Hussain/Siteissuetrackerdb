@@ -7,6 +7,7 @@ create table if not exists public.issues (
   description text,
   shopDrawing jsonb,
   siteImage jsonb,
+  solutionImage jsonb,
   status text,
   solution text,
   createdAt timestamptz,
