@@ -131,12 +131,18 @@ export const useIssueStorage = () => {
     } as any;
 
     try {
-      // Supabase/PostgREST expects column names matching the DB schema (lowercase by default).
-      const lowerPayload: any = Object.fromEntries(
-        Object.entries(toInsert).map(([k, v]) => [k.toLowerCase(), v])
-      );
+      // Convert top-level camelCase keys to snake_case for the DB (leave nested objects as-is)
+      const toSnake = (s: string) => s.replace(/([A-Z])/g, m => '_' + m.toLowerCase()).replace(/^_/, '');
+      const convertTopLevelToSnake = (obj: Record<string, any>) =>
+        Object.fromEntries(
+          Object.entries(obj)
+            .filter(([, v]) => v !== undefined)
+            .map(([k, v]) => [toSnake(k), v])
+        );
 
-      const { data, error } = await supabase.from('issues').insert([lowerPayload]).select().single();
+      const snakePayload: any = convertTopLevelToSnake(toInsert);
+
+      const { data, error } = await supabase.from('issues').insert([snakePayload]).select().single();
       if (error) {
         try {
           console.error('Supabase insert error:', JSON.stringify(error, null, 2));
@@ -144,7 +150,7 @@ export const useIssueStorage = () => {
           console.error('Supabase insert error (raw):', error);
         }
         console.error('Insert payload (original):', toInsert);
-        console.error('Insert payload (sent):', lowerPayload);
+        console.error('Insert payload (sent):', snakePayload);
         const local = normalizeIssue(toInsert);
         setIssues(prev => [local, ...prev]);
         return local;
@@ -168,9 +174,15 @@ export const useIssueStorage = () => {
 
     try {
       const updatePayload = { ...updates, updatedAt } as any;
-      const lowerUpdatePayload = Object.fromEntries(
-        Object.entries(updatePayload).map(([k, v]) => [k.toLowerCase(), v])
-      );
+      const toSnake = (s: string) => s.replace(/([A-Z])/g, m => '_' + m.toLowerCase()).replace(/^_/, '');
+      const convertTopLevelToSnake = (obj: Record<string, any>) =>
+        Object.fromEntries(
+          Object.entries(obj)
+            .filter(([, v]) => v !== undefined)
+            .map(([k, v]) => [toSnake(k), v])
+        );
+
+      const lowerUpdatePayload = convertTopLevelToSnake(updatePayload);
 
       const { data, error } = await supabase.from('issues').update(lowerUpdatePayload).eq('id', issueId).select().single();
       if (error) {
