@@ -79,11 +79,17 @@ const IssueDetailsModal: React.FC<IssueDetailsModalProps> = ({ issue, isOpen, on
             <div className="space-y-4">
               <div>
                 <p className="text-sm font-medium text-gray-600 mb-2">Shop Drawing</p>
-                <ImagePreview
-                  src={issue.shopDrawing.thumbnail}
-                  alt="Shop Drawing"
-                  thumbnailSize="medium"
-                />
+                {issue.shopDrawing?.thumbnail ? (
+                  <ImagePreview
+                    src={issue.shopDrawing.thumbnail}
+                    alt="Shop Drawing"
+                    thumbnailSize="medium"
+                  />
+                ) : (
+                  <div className="w-full h-48 bg-gray-100 rounded-md flex items-center justify-center text-sm text-gray-500">
+                    No shop drawing
+                  </div>
+                )}
               </div>
               {issue.siteImage && (
                 <div>
@@ -109,6 +115,12 @@ const IssueDetailsModal: React.FC<IssueDetailsModalProps> = ({ issue, isOpen, on
                 <p className="text-sm text-green-700 mt-3">
                   Closed on: {formatDate(issue.closedAt)}
                 </p>
+              )}
+              {issue.solutionImage?.thumbnail && (
+                <div className="mt-4">
+                  <h4 className="text-sm font-semibold text-gray-700 mb-2">Attached Image</h4>
+                  <ImagePreview src={issue.solutionImage.thumbnail} alt="Solution Image" thumbnailSize="medium" />
+                </div>
               )}
             </div>
           )}
