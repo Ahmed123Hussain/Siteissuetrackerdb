@@ -59,7 +59,7 @@ function App() {
       ELV Site Issue Tracker
     </h1>
     <p className="text-gray-600 text-sm mt-1">
-      <b>ICAD Ocenarium Project<b>
+      ICAD Ocenarium Project
     </p>
   </div>
 </div>
