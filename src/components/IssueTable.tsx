@@ -142,9 +142,9 @@ const IssueTable: React.FC<IssueTableProps> = ({
                     {issue.shopDrawing?.thumbnail && (
   <ImagePreview src={issue.shopDrawing.thumbnail} alt="Shop Drawing" />
 )}
-                    {issue.siteImage && (
-                      <ImagePreview src={issue.siteImage.thumbnail} alt="Site Image" />
-                    )}
+                    {issue.siteImage?.thumbnail && (
+  <ImagePreview src={issue.siteImage.thumbnail} alt="Site Image" />
+)}
                   </div>
                 </td>
                 <td className="px-6 py-4">
