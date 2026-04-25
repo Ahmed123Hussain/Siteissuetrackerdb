@@ -15,11 +15,12 @@ function App() {
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
 
-  const handleStatusChange = (issueId: string, newStatus: Issue['status'], solution?: string) => {
+  const handleStatusChange = (issueId: string, newStatus: Issue['status'], solution?: string, solutionImage?: { data: string; filename: string; thumbnail: string } | undefined) => {
     const updates: Partial<Issue> = { status: newStatus };
     if (newStatus === 'Closed' && solution) {
       updates.solution = solution;
       updates.closedAt = new Date().toISOString();
+      if (solutionImage) updates.solutionImage = solutionImage;
     }
     updateIssue(issueId, updates);
   };
@@ -63,7 +64,7 @@ function App() {
     </p>
   </div>
 </div>
-             
+              <p className="text-gray-600 text-sm mt-1">ICAD Ocenarium Project</p>
             </div>
             <button
               onClick={() => setIsAddModalOpen(true)}
