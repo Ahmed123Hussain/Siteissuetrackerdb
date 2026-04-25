@@ -8,7 +8,7 @@ const PasskeyGate: React.FC<Props> = ({ onSuccess }) => {
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
 
-  const expected = (import.meta.env.VITE_PASSCODE as string) || '1234';
+  const expected = (import.meta.env.VITE_PASSCODE as string);
 
   const handleSubmit = (e?: React.FormEvent) => {
     e?.preventDefault();
