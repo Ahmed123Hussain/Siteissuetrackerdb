@@ -59,11 +59,11 @@ function App() {
       ELV Site Issue Tracker
     </h1>
     <p className="text-gray-600 text-sm mt-1">
-      ICAD Ocenarium Project
+      <b>ICAD Ocenarium Project<b>
     </p>
   </div>
 </div>
-              <p className="text-gray-600 text-sm mt-1">ICAD Ocenarium Project</p>
+             
             </div>
             <button
               onClick={() => setIsAddModalOpen(true)}
