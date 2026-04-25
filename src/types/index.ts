@@ -11,6 +11,7 @@ export interface Issue {
   description: string;
   shopDrawing: IssueImage;
   siteImage?: IssueImage;
+  solutionImage?: IssueImage;
   status: 'Open' | 'Work Ongoing' | 'Closed';
   solution?: string;
   createdAt: string;
