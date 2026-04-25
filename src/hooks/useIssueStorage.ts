@@ -121,16 +121,23 @@ export const useIssueStorage = () => {
       updatedAt: new Date().toISOString(),
     } as any;
 
-    const { data, error } = await supabase.from('issues').insert(toInsert).select().single();
-    if (error) {
-      console.error('Supabase insert error:', error);
-      // fallback to local
+    try {
+      const { data, error } = await supabase.from('issues').insert(toInsert).select().single();
+      if (error) {
+        console.error('Supabase insert error:', error);
+        console.error('Insert payload:', toInsert);
+        const local = normalizeIssue(toInsert);
+        setIssues(prev => [local, ...prev]);
+        return local;
+      }
+      return normalizeIssue(data);
+    } catch (e: any) {
+      console.error('Supabase insert exception:', e?.message ?? e, e);
+      console.error('Insert payload:', toInsert);
       const local = normalizeIssue(toInsert);
       setIssues(prev => [local, ...prev]);
       return local;
     }
-
-    return normalizeIssue(data);
   }, [issues]);
 
   const updateIssue = useCallback(async (issueId: string, updates: Partial<Issue>) => {
@@ -140,15 +147,23 @@ export const useIssueStorage = () => {
       return;
     }
 
-    const { data, error } = await supabase.from('issues').update({ ...updates, updatedAt }).eq('id', issueId).select().single();
-    if (error) {
-      console.error('Supabase update error:', error);
+    try {
+      const { data, error } = await supabase.from('issues').update({ ...updates, updatedAt }).eq('id', issueId).select().single();
+      if (error) {
+        console.error('Supabase update error:', error);
+        console.error('Update payload:', { issueId, updates: { ...updates, updatedAt } });
+        setIssues(prev => prev.map(issue => issue.id === issueId ? { ...issue, ...updates, updatedAt } : issue));
+        return;
+      }
+
+      const normalized = normalizeIssue(data);
+      setIssues(prev => prev.map(issue => issue.id === issueId ? normalized : issue));
+    } catch (e: any) {
+      console.error('Supabase update exception:', e?.message ?? e, e);
+      console.error('Update payload:', { issueId, updates: { ...updates, updatedAt } });
       setIssues(prev => prev.map(issue => issue.id === issueId ? { ...issue, ...updates, updatedAt } : issue));
       return;
     }
-
-    const normalized = normalizeIssue(data);
-    setIssues(prev => prev.map(issue => issue.id === issueId ? normalized : issue));
   }, [issues]);
 
   const deleteIssue = useCallback(async (issueId: string) => {
