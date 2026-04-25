@@ -42,7 +42,7 @@ const PasskeyGate: React.FC<Props> = ({ onSuccess }) => {
             </button>
           </div>
         </form>
-        <p className="text-xs text-gray-500 mt-3">Provide `VITE_PASSCODE` in your `.env` for production.</p>
+        <p className="text-xs text-gray-500 mt-3">Enter the passkey for authorization</p>
       </div>
     </div>
   );
