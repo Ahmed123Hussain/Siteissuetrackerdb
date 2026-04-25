@@ -108,7 +108,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ src, alt, thumbnailSize = '
                   e.touches[0].clientY - e.touches[1].clientY
                 );
                 const factor = distance / pinchRef.current.distance;
-                setScale(s => Math.min(5, Math.max(1, +(pinchRef.current!.scale * factor).toFixed(3))));
+                setScale(() => Math.min(5, Math.max(1, +(pinchRef.current!.scale * factor).toFixed(3))));
               }
             }}
             onTouchEnd={() => {
