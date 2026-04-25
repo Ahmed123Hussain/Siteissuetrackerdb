@@ -139,7 +139,9 @@ const IssueTable: React.FC<IssueTableProps> = ({
                 <td className="px-6 py-4 text-gray-600 max-w-xs truncate">{issue.description}</td>
                 <td className="px-6 py-4">
                   <div className="flex gap-2">
-                    <ImagePreview src={issue.shopDrawing.thumbnail} alt="Shop Drawing" />
+                    {issue.shopDrawing?.thumbnail && (
+  <ImagePreview src={issue.shopDrawing.thumbnail} alt="Shop Drawing" />
+)}
                     {issue.siteImage && (
                       <ImagePreview src={issue.siteImage.thumbnail} alt="Site Image" />
                     )}
