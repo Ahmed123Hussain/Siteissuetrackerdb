@@ -28,6 +28,14 @@ export const useIssueStorage = () => {
         }
       : undefined;
 
+    const safeSolutionImage = row?.solutionImage && typeof row.solutionImage === 'object'
+      ? {
+          data: row.solutionImage.data ?? '',
+          filename: row.solutionImage.filename ?? '',
+          thumbnail: row.solutionImage.thumbnail ?? '',
+        }
+      : undefined;
+
     return {
       id: row?.id ?? crypto.randomUUID(),
       issueNumber: typeof row?.issueNumber === 'number' ? row.issueNumber : (row?.issueNumber ? Number(row.issueNumber) : 0),
@@ -35,6 +43,7 @@ export const useIssueStorage = () => {
       description: row?.description ?? '',
       shopDrawing: safeShopDrawing,
       siteImage: safeSiteImage,
+      solutionImage: safeSolutionImage,
       status: row?.status ?? 'Open',
       solution: row?.solution ?? undefined,
       createdAt: row?.createdAt ?? new Date().toISOString(),
@@ -122,14 +131,20 @@ export const useIssueStorage = () => {
     } as any;
 
     try {
-      const { data, error } = await supabase.from('issues').insert([toInsert]).select().single();
+      // Supabase/PostgREST expects column names matching the DB schema (lowercase by default).
+      const lowerPayload: any = Object.fromEntries(
+        Object.entries(toInsert).map(([k, v]) => [k.toLowerCase(), v])
+      );
+
+      const { data, error } = await supabase.from('issues').insert([lowerPayload]).select().single();
       if (error) {
         try {
           console.error('Supabase insert error:', JSON.stringify(error, null, 2));
         } catch (e) {
           console.error('Supabase insert error (raw):', error);
         }
-        console.error('Insert payload:', toInsert);
+        console.error('Insert payload (original):', toInsert);
+        console.error('Insert payload (sent):', lowerPayload);
         const local = normalizeIssue(toInsert);
         setIssues(prev => [local, ...prev]);
         return local;
@@ -152,7 +167,12 @@ export const useIssueStorage = () => {
     }
 
     try {
-      const { data, error } = await supabase.from('issues').update({ ...updates, updatedAt }).eq('id', issueId).select().single();
+      const updatePayload = { ...updates, updatedAt } as any;
+      const lowerUpdatePayload = Object.fromEntries(
+        Object.entries(updatePayload).map(([k, v]) => [k.toLowerCase(), v])
+      );
+
+      const { data, error } = await supabase.from('issues').update(lowerUpdatePayload).eq('id', issueId).select().single();
       if (error) {
         console.error('Supabase update error:', error);
         console.error('Update payload:', { issueId, updates: { ...updates, updatedAt } });
