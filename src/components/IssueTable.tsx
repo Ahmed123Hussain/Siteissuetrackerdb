@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
+import { processImage } from '../utils/imageHandling';
 import { Issue, ClosureModalState } from '../types/index';
 import StatusBadge from './StatusBadge';
 import ImagePreview from './ImagePreview';
 
 interface IssueTableProps {
   issues: Issue[];
-  onStatusChange: (issueId: string, newStatus: Issue['status'], solution?: string) => void;
+  onStatusChange: (issueId: string, newStatus: Issue['status'], solution?: string, solutionImage?: { data: string; filename: string; thumbnail: string } | undefined) => void;
   onDelete: (issueId: string) => void;
   onViewDetails: (issue: Issue) => void;
 }
@@ -18,6 +19,7 @@ const IssueTable: React.FC<IssueTableProps> = ({
 }) => {
   const [closureModal, setClosureModal] = useState<ClosureModalState>({ isOpen: false });
   const [solutionText, setSolutionText] = useState('');
+  const [closureImage, setClosureImage] = useState<{ data: string; filename: string; thumbnail: string } | null>(null);
   const [sortConfig, setSortConfig] = useState<{ key: keyof Issue; direction: 'asc' | 'desc' }>({
     key: 'issueNumber',
     direction: 'desc',
@@ -56,9 +58,20 @@ const IssueTable: React.FC<IssueTableProps> = ({
       alert('Please enter a solution description before closing');
       return;
     }
-    onStatusChange(issueId, 'Closed', solutionText);
+    onStatusChange(issueId, 'Closed', solutionText, closureImage || undefined);
     setClosureModal({ isOpen: false });
     setSolutionText('');
+  };
+
+  const handleClosureImage = async (file?: File | null) => {
+    if (!file) return;
+    try {
+      const { data, thumbnail } = await processImage(file);
+      setClosureImage({ data, thumbnail, filename: file.name });
+    } catch (e) {
+      // ignore or show small error
+      console.error('Failed to process closure image', e);
+    }
   };
 
   const handleStatusChange = (issueId: string, newStatus: Issue['status']) => {
@@ -139,12 +152,16 @@ const IssueTable: React.FC<IssueTableProps> = ({
                 <td className="px-6 py-4 text-gray-600 max-w-xs truncate">{issue.description}</td>
                 <td className="px-6 py-4">
                   <div className="flex gap-2">
-                    {issue.shopDrawing?.thumbnail && (
-  <ImagePreview src={issue.shopDrawing.thumbnail} alt="Shop Drawing" />
-)}
-                    {issue.siteImage?.thumbnail && (
-  <ImagePreview src={issue.siteImage.thumbnail} alt="Site Image" />
-)}
+                    {issue.shopDrawing?.thumbnail ? (
+                      <ImagePreview src={issue.shopDrawing.thumbnail} alt="Shop Drawing" />
+                    ) : (
+                      <div className="w-16 h-12 bg-gray-100 rounded-md flex items-center justify-center text-xs text-gray-500">
+                        No image
+                      </div>
+                    )}
+                    {issue.siteImage?.thumbnail ? (
+                      <ImagePreview src={issue.siteImage.thumbnail} alt="Site Image" />
+                    ) : null}
                   </div>
                 </td>
                 <td className="px-6 py-4">
@@ -203,10 +220,16 @@ const IssueTable: React.FC<IssueTableProps> = ({
             <p className="text-gray-700 text-sm mb-3">{issue.description}</p>
 
             <div className="flex gap-2 mb-3">
-              <ImagePreview src={issue.shopDrawing.thumbnail} alt="Shop Drawing" thumbnailSize="small" />
-              {issue.siteImage && (
-                <ImagePreview src={issue.siteImage.thumbnail} alt="Site Image" thumbnailSize="small" />
+              {issue.shopDrawing?.thumbnail ? (
+                <ImagePreview src={issue.shopDrawing.thumbnail} alt="Shop Drawing" thumbnailSize="small" />
+              ) : (
+                <div className="w-20 h-16 bg-gray-100 rounded-md flex items-center justify-center text-xs text-gray-500">
+                  No image
+                </div>
               )}
+              {issue.siteImage?.thumbnail ? (
+                <ImagePreview src={issue.siteImage.thumbnail} alt="Site Image" thumbnailSize="small" />
+              ) : null}
             </div>
 
             <div className="space-y-2">
@@ -269,6 +292,20 @@ const IssueTable: React.FC<IssueTableProps> = ({
               rows={4}
               className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none mb-4"
             />
+            <div className="mb-4">
+              <label className="block text-sm font-semibold text-gray-700 mb-2">Attach image with solution <span className="text-gray-400">(optional)</span></label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={e => handleClosureImage(e.target.files?.[0] ?? null)}
+              />
+              {closureImage && (
+                <div className="mt-2 flex items-center gap-2">
+                  <img src={closureImage.thumbnail} alt="closure" className="w-16 h-12 object-cover rounded-md border" />
+                  <div className="text-sm text-gray-600">{closureImage.filename}</div>
+                </div>
+              )}
+            </div>
             <div className="flex gap-3">
               <button
                 onClick={() => setClosureModal({ isOpen: false })}
