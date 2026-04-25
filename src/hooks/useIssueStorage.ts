@@ -122,9 +122,13 @@ export const useIssueStorage = () => {
     } as any;
 
     try {
-      const { data, error } = await supabase.from('issues').insert(toInsert).select().single();
+      const { data, error } = await supabase.from('issues').insert([toInsert]).select().single();
       if (error) {
-        console.error('Supabase insert error:', error);
+        try {
+          console.error('Supabase insert error:', JSON.stringify(error, null, 2));
+        } catch (e) {
+          console.error('Supabase insert error (raw):', error);
+        }
         console.error('Insert payload:', toInsert);
         const local = normalizeIssue(toInsert);
         setIssues(prev => [local, ...prev]);
