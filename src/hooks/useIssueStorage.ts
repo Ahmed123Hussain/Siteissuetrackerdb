@@ -12,6 +12,11 @@ export const useIssueStorage = () => {
 
   // Normalize rows from Supabase to ensure required fields exist
   const normalizeIssue = (row: any): Issue => {
+    const pick = (r: any, camel: string, snake: string) => r?.[camel] ?? r?.[snake];
+    const pickObj = (r: any, camel: string, snake: string) => {
+      const val = r?.[camel] ?? r?.[snake];
+      return val;
+    };
     const safeShopDrawing = row?.shopDrawing && typeof row.shopDrawing === 'object'
       ? {
           data: row.shopDrawing.data ?? '',
@@ -19,36 +24,48 @@ export const useIssueStorage = () => {
           thumbnail: row.shopDrawing.thumbnail ?? '',
         }
       : { data: '', filename: '', thumbnail: '' };
-
-    const safeSiteImage = row?.siteImage && typeof row.siteImage === 'object'
+    const siteImg = pickObj(row, 'siteImage', 'site_image');
+    const safeSiteImage = siteImg && typeof siteImg === 'object'
       ? {
-          data: row.siteImage.data ?? '',
-          filename: row.siteImage.filename ?? '',
-          thumbnail: row.siteImage.thumbnail ?? '',
+          data: siteImg.data ?? '',
+          filename: siteImg.filename ?? '',
+          thumbnail: siteImg.thumbnail ?? '',
         }
       : undefined;
 
-    const safeSolutionImage = row?.solutionImage && typeof row.solutionImage === 'object'
+    const solImg = pickObj(row, 'solutionImage', 'solution_image');
+    const safeSolutionImage = solImg && typeof solImg === 'object'
       ? {
-          data: row.solutionImage.data ?? '',
-          filename: row.solutionImage.filename ?? '',
-          thumbnail: row.solutionImage.thumbnail ?? '',
+          data: solImg.data ?? '',
+          filename: solImg.filename ?? '',
+          thumbnail: solImg.thumbnail ?? '',
         }
       : undefined;
+
+    const issueNumberRaw = pick(row, 'issueNumber', 'issue_number');
+    const createdAtRaw = pick(row, 'createdAt', 'created_at');
+    const closedAtRaw = pick(row, 'closedAt', 'closed_at');
+    const updatedAtRaw = pick(row, 'updatedAt', 'updated_at');
 
     return {
       id: row?.id ?? crypto.randomUUID(),
-      issueNumber: typeof row?.issueNumber === 'number' ? row.issueNumber : (row?.issueNumber ? Number(row.issueNumber) : 0),
-      location: row?.location ?? '',
+      issueNumber: typeof issueNumberRaw === 'number' ? issueNumberRaw : (issueNumberRaw ? Number(issueNumberRaw) : 0),
+      location: row?.location ?? row?.location ?? '',
       description: row?.description ?? '',
-      shopDrawing: safeShopDrawing,
+      shopDrawing: (row?.shopDrawing ?? row?.shop_drawing) && typeof (row?.shopDrawing ?? row?.shop_drawing) === 'object'
+        ? {
+            data: (row?.shopDrawing ?? row?.shop_drawing).data ?? '',
+            filename: (row?.shopDrawing ?? row?.shop_drawing).filename ?? '',
+            thumbnail: (row?.shopDrawing ?? row?.shop_drawing).thumbnail ?? '',
+          }
+        : { data: '', filename: '', thumbnail: '' },
       siteImage: safeSiteImage,
       solutionImage: safeSolutionImage,
       status: row?.status ?? 'Open',
       solution: row?.solution ?? undefined,
-      createdAt: row?.createdAt ?? new Date().toISOString(),
-      closedAt: row?.closedAt ?? undefined,
-      updatedAt: row?.updatedAt ?? (row?.createdAt ?? new Date().toISOString()),
+      createdAt: createdAtRaw ?? new Date().toISOString(),
+      closedAt: closedAtRaw ?? undefined,
+      updatedAt: updatedAtRaw ?? (createdAtRaw ?? new Date().toISOString()),
     };
   };
 
@@ -58,10 +75,20 @@ export const useIssueStorage = () => {
     let mounted = true;
 
     (async () => {
-      const { data, error } = await supabase
-        .from('issues')
-        .select('*')
-        .order('createdAt', { ascending: false });
+      let data: any = null;
+      let error: any = null;
+
+      const tryOrder = async (col: string) => {
+        const res = await supabase.from('issues').select('*').order(col, { ascending: false });
+        return res;
+      };
+
+      // Try snake_case first, then camelCase as a fallback
+      ({ data, error } = await tryOrder('created_at'));
+      if (error && String(error?.code) === 'PGRST204') {
+        console.warn('created_at not found, retrying fetch with createdAt');
+        ({ data, error } = await tryOrder('createdAt'));
+      }
 
       if (error) {
         console.error('Supabase fetch error:', error);
@@ -130,7 +157,7 @@ export const useIssueStorage = () => {
       updatedAt: new Date().toISOString(),
     } as any;
 
-    try {
+      try {
       // Convert top-level camelCase keys to snake_case for the DB (leave nested objects as-is)
       const toSnake = (s: string) => s.replace(/([A-Z])/g, m => '_' + m.toLowerCase()).replace(/^_/, '');
       const convertTopLevelToSnake = (obj: Record<string, any>) =>
@@ -142,7 +169,19 @@ export const useIssueStorage = () => {
 
       const snakePayload: any = convertTopLevelToSnake(toInsert);
 
-      const { data, error } = await supabase.from('issues').insert([snakePayload]).select().single();
+      let res = await supabase.from('issues').insert([snakePayload]).select().single();
+      let { data, error } = res;
+
+      // If server complains about missing snake_case columns, retry with camelCase payload
+      if (error && String(error?.code) === 'PGRST204') {
+        console.warn('Supabase reported missing snake_case column, retrying insert with camelCase payload');
+        console.error('Supabase insert error (first):', error);
+        console.error('Insert payload (sent, snake):', snakePayload);
+        res = await supabase.from('issues').insert([toInsert]).select().single();
+        data = res.data; error = res.error;
+        console.error('Insert payload (retry, camel):', toInsert);
+      }
+
       if (error) {
         try {
           console.error('Supabase insert error:', JSON.stringify(error, null, 2));
@@ -184,7 +223,18 @@ export const useIssueStorage = () => {
 
       const lowerUpdatePayload = convertTopLevelToSnake(updatePayload);
 
-      const { data, error } = await supabase.from('issues').update(lowerUpdatePayload).eq('id', issueId).select().single();
+      let res = await supabase.from('issues').update(lowerUpdatePayload).eq('id', issueId).select().single();
+      let { data, error } = res;
+
+      if (error && String(error?.code) === 'PGRST204') {
+        console.warn('Supabase reported missing snake_case column, retrying update with camelCase payload');
+        console.error('Supabase update error (first):', error);
+        console.error('Update payload (sent, snake):', lowerUpdatePayload);
+        res = await supabase.from('issues').update(updatePayload).eq('id', issueId).select().single();
+        data = res.data; error = res.error;
+        console.error('Update payload (retry, camel):', updatePayload);
+      }
+
       if (error) {
         console.error('Supabase update error:', error);
         console.error('Update payload:', { issueId, updates: { ...updates, updatedAt } });
