@@ -8,33 +8,19 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({ status }) => {
   const getStatusColor = () => {
     switch (status) {
       case 'Open':
-        return 'bg-red-100 text-red-800 border-red-300';
+        return 'bg-red-50 text-red-700 border-red-200';
       case 'Work Ongoing':
-        return 'bg-orange-100 text-orange-800 border-orange-300';
+        return 'bg-amber-50 text-amber-700 border-amber-200';
       case 'Closed':
-        return 'bg-green-100 text-green-800 border-green-300';
+        return 'bg-green-50 text-green-700 border-green-200';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
-    }
-  };
-
-  const getStatusIcon = () => {
-    switch (status) {
-      case 'Open':
-        return '⚠️';
-      case 'Work Ongoing':
-        return '🔄';
-      case 'Closed':
-        return '✓';
-      default:
-        return '•';
+        return 'bg-gray-50 text-gray-700 border-gray-200';
     }
   };
 
   return (
-    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-semibold border ${getStatusColor()}`}>
-      <span>{getStatusIcon()}</span>
-      <span>{status}</span>
+    <span className={`inline-flex items-center px-3 py-1.5 rounded-lg text-xs font-medium border ${getStatusColor()}`}>
+      {status}
     </span>
   );
 };
