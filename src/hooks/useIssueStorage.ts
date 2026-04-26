@@ -17,13 +17,6 @@ export const useIssueStorage = () => {
       const val = r?.[camel] ?? r?.[snake];
       return val;
     };
-    const safeShopDrawing = row?.shopDrawing && typeof row.shopDrawing === 'object'
-      ? {
-          data: row.shopDrawing.data ?? '',
-          filename: row.shopDrawing.filename ?? '',
-          thumbnail: row.shopDrawing.thumbnail ?? '',
-        }
-      : { data: '', filename: '', thumbnail: '' };
     const siteImg = pickObj(row, 'siteImage', 'site_image');
     const safeSiteImage = siteImg && typeof siteImg === 'object'
       ? {
@@ -99,6 +92,8 @@ export const useIssueStorage = () => {
         setIssues((data as any[]).map(normalizeIssue));
       }
     })();
+
+    if (!supabase) return () => {};
 
     const channel = supabase
       .channel('public:issues')
@@ -272,3 +267,4 @@ export const useIssueStorage = () => {
     deleteIssue,
   };
 };
+
