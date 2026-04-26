@@ -246,17 +246,22 @@ export const useIssueStorage = () => {
   }, [issues]);
 
   const deleteIssue = useCallback(async (issueId: string) => {
-    if (!supabase) {
-      setIssues(prev => prev.filter(issue => issue.id !== issueId));
-      return;
-    }
+    // Optimistic delete: remove from UI immediately
+    const deletedIssue = issues.find(i => i.id === issueId);
+    setIssues(prev => prev.filter(issue => issue.id !== issueId));
 
+    if (!supabase) return;
+
+    // Verify with server in background
     const { error } = await supabase.from('issues').delete().eq('id', issueId);
     if (error) {
       console.error('Supabase delete error:', error);
-      setIssues(prev => prev.filter(issue => issue.id !== issueId));
+      // Revert on error
+      if (deletedIssue) {
+        setIssues(prev => [deletedIssue, ...prev]);
+      }
     }
-  }, []);
+  }, [issues]);
 
   return {
     issues,
