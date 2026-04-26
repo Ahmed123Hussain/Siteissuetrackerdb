@@ -72,7 +72,7 @@ export const useIssueStorage = () => {
       let error: any = null;
 
       const tryOrder = async (col: string) => {
-        const res = await supabase.from('issues').select('*').order(col, { ascending: false });
+        const res = await supabase!.from('issues').select('*').order(col, { ascending: false });
         return res;
       };
 
