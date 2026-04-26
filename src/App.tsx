@@ -42,36 +42,31 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-white">
       {/* Header */}
-      <header className="bg-white shadow-soft sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div>
-              <div className="flex items-center gap-3">
-  <img
-    src={logo}
-    alt="ELV Logo"
-    className="w-10 h-10 object-contain rounded-md"
-  />
-
-  <div>
-    <h1 className="text-3xl font-bold text-gray-900 leading-tight">
-      ELV Site Issue Tracker
-    </h1>
-    <p className="text-gray-600 text-sm mt-1">
-      ICAD Ocenarium Project
-    </p>
-  </div>
-</div>
-              
+      <header className="border-b border-gray-200 sticky top-0 z-40 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <img
+                src={logo}
+                alt="ELV Logo"
+                className="w-9 h-9 object-contain"
+              />
+              <div>
+                <h1 className="text-2xl font-semibold text-gray-900">
+                  ELV Site Issue Tracker
+                </h1>
+                <p className="text-gray-500 text-xs mt-0.5">
+                  ICAD Ocenarium Project
+                </p>
+              </div>
             </div>
             <button
               onClick={() => setIsAddModalOpen(true)}
-              className="px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-lg hover:from-blue-700 hover:to-blue-800 shadow-soft hover:shadow-soft-md transition-all inline-flex items-center gap-2"
+              className="px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors duration-200 text-sm"
             >
-              <span>+</span>
-              <span>Add Issue</span>
+              + Add Issue
             </button>
           </div>
         </div>
@@ -79,27 +74,27 @@ function App() {
 
       {/* Stats */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white rounded-xl shadow-soft p-6 text-center">
-            <div className="text-3xl font-bold text-gray-900">{stats.total}</div>
-            <div className="text-sm text-gray-600 mt-2">Total Issues</div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          <div className="bg-gray-50 rounded-xl p-6 text-center border border-gray-200 hover:border-gray-300 transition-colors">
+            <div className="text-3xl font-semibold text-gray-900">{stats.total}</div>
+            <div className="text-xs text-gray-500 mt-2 font-medium">Total Issues</div>
           </div>
-          <div className="bg-white rounded-xl shadow-soft p-6 text-center border-l-4 border-red-500">
-            <div className="text-3xl font-bold text-red-600">{stats.open}</div>
-            <div className="text-sm text-gray-600 mt-2">Open</div>
+          <div className="bg-red-50 rounded-xl p-6 text-center border border-red-100 hover:border-red-200 transition-colors">
+            <div className="text-3xl font-semibold text-red-600">{stats.open}</div>
+            <div className="text-xs text-red-600 mt-2 font-medium">Open</div>
           </div>
-          <div className="bg-white rounded-xl shadow-soft p-6 text-center border-l-4 border-orange-500">
-            <div className="text-3xl font-bold text-orange-600">{stats.ongoing}</div>
-            <div className="text-sm text-gray-600 mt-2">In Progress</div>
+          <div className="bg-amber-50 rounded-xl p-6 text-center border border-amber-100 hover:border-amber-200 transition-colors">
+            <div className="text-3xl font-semibold text-amber-600">{stats.ongoing}</div>
+            <div className="text-xs text-amber-600 mt-2 font-medium">In Progress</div>
           </div>
-          <div className="bg-white rounded-xl shadow-soft p-6 text-center border-l-4 border-green-500">
-            <div className="text-3xl font-bold text-green-600">{stats.closed}</div>
-            <div className="text-sm text-gray-600 mt-2">Closed</div>
+          <div className="bg-green-50 rounded-xl p-6 text-center border border-green-100 hover:border-green-200 transition-colors">
+            <div className="text-3xl font-semibold text-green-600">{stats.closed}</div>
+            <div className="text-xs text-green-600 mt-2 font-medium">Closed</div>
           </div>
         </div>
 
         {/* Main Content */}
-        <div className="bg-white rounded-2xl shadow-soft p-6">
+        <div className="bg-white border border-gray-200 rounded-xl p-6">
           <IssueTable
             issues={issues}
             onStatusChange={handleStatusChange}
