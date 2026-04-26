@@ -81,7 +81,8 @@ const IssueDetailsModal: React.FC<IssueDetailsModalProps> = ({ issue, isOpen, on
                 <p className="text-sm font-medium text-gray-600 mb-2">Shop Drawing</p>
                 {issue.shopDrawing?.thumbnail ? (
                   <ImagePreview
-                    src={issue.shopDrawing.thumbnail}
+                    thumbnail={issue.shopDrawing.thumbnail}
+                    fullSrc={issue.shopDrawing.data}
                     alt="Shop Drawing"
                     thumbnailSize="medium"
                   />
@@ -95,7 +96,8 @@ const IssueDetailsModal: React.FC<IssueDetailsModalProps> = ({ issue, isOpen, on
                 <div>
                   <p className="text-sm font-medium text-gray-600 mb-2">Site Image</p>
                   <ImagePreview
-                    src={issue.siteImage.thumbnail}
+                    thumbnail={issue.siteImage.thumbnail}
+                    fullSrc={issue.siteImage.data}
                     alt="Site Image"
                     thumbnailSize="medium"
                   />
@@ -119,7 +121,7 @@ const IssueDetailsModal: React.FC<IssueDetailsModalProps> = ({ issue, isOpen, on
               {issue.solutionImage?.thumbnail && (
                 <div className="mt-4">
                   <h4 className="text-sm font-semibold text-gray-700 mb-2">Attached Image</h4>
-                  <ImagePreview src={issue.solutionImage.thumbnail} alt="Solution Image" thumbnailSize="medium" />
+                  <ImagePreview thumbnail={issue.solutionImage.thumbnail} fullSrc={issue.solutionImage.data} alt="Solution Image" thumbnailSize="medium" />
                 </div>
               )}
             </div>
