@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 
 interface ImagePreviewProps {
-  src: string;
+  thumbnail: string;
+  fullSrc: string;
   alt: string;
   thumbnailSize?: 'small' | 'medium';
 }
 
-const ImagePreview: React.FC<ImagePreviewProps> = ({ src, alt, thumbnailSize = 'small' }) => {
+const ImagePreview: React.FC<ImagePreviewProps> = ({ thumbnail, fullSrc, alt, thumbnailSize = 'small' }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [scale, setScale] = useState(1);
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
@@ -38,7 +39,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ src, alt, thumbnailSize = '
         onClick={() => setIsModalOpen(true)}
         className={`${sizeClasses[thumbnailSize]} rounded-lg overflow-hidden border-2 border-gray-200 hover:border-blue-500 transition-all cursor-pointer shadow-soft hover:shadow-soft-md`}
       >
-        <img src={src} alt={alt} className="w-full h-full object-cover" />
+        <img src={thumbnail} alt={alt} className="w-full h-full object-cover" />
       </button>
 
       {isModalOpen && (
@@ -130,7 +131,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ src, alt, thumbnailSize = '
               <div className="relative" style={{ maxWidth: '95vw', maxHeight: '95vh' }}>
                 <img
                   ref={imgRef}
-                  src={src}
+                  src={fullSrc}
                   alt={alt}
                   draggable={false}
                   style={{
