@@ -153,14 +153,14 @@ const IssueTable: React.FC<IssueTableProps> = ({
                 <td className="px-6 py-4">
                   <div className="flex gap-2">
                     {issue.shopDrawing?.thumbnail ? (
-                      <ImagePreview src={issue.shopDrawing.thumbnail} alt="Shop Drawing" />
+                      <ImagePreview thumbnail={issue.shopDrawing.thumbnail} fullSrc={issue.shopDrawing.data} alt="Shop Drawing" />
                     ) : (
                       <div className="w-16 h-12 bg-gray-100 rounded-md flex items-center justify-center text-xs text-gray-500">
                         No image
                       </div>
                     )}
                     {issue.siteImage?.thumbnail ? (
-                      <ImagePreview src={issue.siteImage.thumbnail} alt="Site Image" />
+                      <ImagePreview thumbnail={issue.siteImage.thumbnail} fullSrc={issue.siteImage.data} alt="Site Image" />
                     ) : null}
                   </div>
                 </td>
@@ -221,14 +221,14 @@ const IssueTable: React.FC<IssueTableProps> = ({
 
             <div className="flex gap-2 mb-3">
               {issue.shopDrawing?.thumbnail ? (
-                <ImagePreview src={issue.shopDrawing.thumbnail} alt="Shop Drawing" thumbnailSize="small" />
+                <ImagePreview thumbnail={issue.shopDrawing.thumbnail} fullSrc={issue.shopDrawing.data} alt="Shop Drawing" thumbnailSize="small" />
               ) : (
                 <div className="w-20 h-16 bg-gray-100 rounded-md flex items-center justify-center text-xs text-gray-500">
                   No image
                 </div>
               )}
               {issue.siteImage?.thumbnail ? (
-                <ImagePreview src={issue.siteImage.thumbnail} alt="Site Image" thumbnailSize="small" />
+                <ImagePreview thumbnail={issue.siteImage.thumbnail} fullSrc={issue.siteImage.data} alt="Site Image" thumbnailSize="small" />
               ) : null}
             </div>
 
