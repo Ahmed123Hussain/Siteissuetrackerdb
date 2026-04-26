@@ -93,8 +93,6 @@ export const useIssueStorage = () => {
       }
     })();
 
-    if (!supabase) return () => {};
-
     const channel = supabase
       .channel('public:issues')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'issues' }, (payload) => {
@@ -267,4 +265,3 @@ export const useIssueStorage = () => {
     deleteIssue,
   };
 };
-
