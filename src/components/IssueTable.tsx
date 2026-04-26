@@ -84,20 +84,20 @@ const IssueTable: React.FC<IssueTableProps> = ({
 
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       {/* Controls */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3">
         <input
           type="text"
           placeholder="Search by location or description..."
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
-          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="flex-1 px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm transition-all"
         />
         <select
           value={filterStatus}
           onChange={e => setFilterStatus(e.target.value as Issue['status'] | 'All')}
-          className="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
+          className="px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white text-sm font-medium transition-all cursor-pointer"
         >
           <option value="All">All Status</option>
           <option value="Open">Open</option>
@@ -107,12 +107,12 @@ const IssueTable: React.FC<IssueTableProps> = ({
       </div>
 
       {/* Desktop Table */}
-      <div className="hidden md:block overflow-x-auto shadow-soft rounded-xl">
+      <div className="hidden md:block border border-gray-200 rounded-lg overflow-hidden">
         <table className="w-full">
           <thead>
-            <tr className="bg-gradient-to-r from-gray-900 to-gray-800 text-white">
+            <tr className="bg-gray-50 border-b border-gray-200">
               <th
-                className="px-6 py-4 text-left font-semibold cursor-pointer hover:bg-gray-700"
+                className="px-6 py-4 text-left font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors text-sm"
                 onClick={() =>
                   setSortConfig({
                     key: 'issueNumber',
@@ -123,7 +123,7 @@ const IssueTable: React.FC<IssueTableProps> = ({
                 # {sortConfig.key === 'issueNumber' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
               </th>
               <th
-                className="px-6 py-4 text-left font-semibold cursor-pointer hover:bg-gray-700"
+                className="px-6 py-4 text-left font-semibold text-gray-900 cursor-pointer hover:bg-gray-100 transition-colors text-sm"
                 onClick={() =>
                   setSortConfig({
                     key: 'location',
@@ -133,23 +133,21 @@ const IssueTable: React.FC<IssueTableProps> = ({
               >
                 Location {sortConfig.key === 'location' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
               </th>
-              <th className="px-6 py-4 text-left font-semibold">Description</th>
-              <th className="px-6 py-4 text-left font-semibold">Images</th>
-              <th className="px-6 py-4 text-left font-semibold">Status</th>
-              <th className="px-6 py-4 text-left font-semibold">Actions</th>
+              <th className="px-6 py-4 text-left font-semibold text-gray-900 text-sm">Description</th>
+              <th className="px-6 py-4 text-left font-semibold text-gray-900 text-sm">Images</th>
+              <th className="px-6 py-4 text-left font-semibold text-gray-900 text-sm">Status</th>
+              <th className="px-6 py-4 text-left font-semibold text-gray-900 text-sm">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
             {filteredAndSortedIssues.map(issue => (
               <tr
                 key={issue.id}
-                className={`hover:bg-gray-50 transition-colors ${
-                  issue.status === 'Closed' ? 'bg-green-50' : ''
-                }`}
+                className="hover:bg-gray-50 transition-colors"
               >
-                <td className="px-6 py-4 font-semibold text-gray-800">#{issue.issueNumber}</td>
+                <td className="px-6 py-4 font-semibold text-gray-800 text-sm">#{issue.issueNumber}</td>
                 <td className="px-6 py-4 text-gray-700">{issue.location}</td>
-                <td className="px-6 py-4 text-gray-600 max-w-xs truncate">{issue.description}</td>
+                <td className="px-6 py-4 text-gray-700 text-sm max-w-xs truncate">{issue.description}</td>
                 <td className="px-6 py-4">
                   <div className="flex gap-2">
                     {issue.shopDrawing?.thumbnail ? (
@@ -174,7 +172,7 @@ const IssueTable: React.FC<IssueTableProps> = ({
                       onChange={e =>
                         handleStatusChange(issue.id, e.target.value as Issue['status'])
                       }
-                      className="px-2 py-1 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="px-3 py-1.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                       <option value="Open">Open</option>
                       <option value="Work Ongoing">Work Ongoing</option>
@@ -182,13 +180,13 @@ const IssueTable: React.FC<IssueTableProps> = ({
                     </select>
                     <button
                       onClick={() => onViewDetails(issue)}
-                      className="px-2 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                      className="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                     >
                       Details
                     </button>
                     <button
                       onClick={() => onDelete(issue.id)}
-                      className="px-2 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                      className="px-3 py-1.5 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
                     >
                       Delete
                     </button>
@@ -201,25 +199,23 @@ const IssueTable: React.FC<IssueTableProps> = ({
       </div>
 
       {/* Mobile Card View */}
-      <div className="md:hidden space-y-4">
+      <div className="md:hidden space-y-3">
         {filteredAndSortedIssues.map(issue => (
           <div
             key={issue.id}
-            className={`p-4 rounded-xl border-2 border-gray-200 shadow-soft hover:shadow-soft-md transition-all ${
-              issue.status === 'Closed' ? 'bg-green-50 border-green-300' : 'bg-white'
-            }`}
+            className="p-5 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors bg-white"
           >
             <div className="flex justify-between items-start mb-3">
               <div>
-                <div className="font-bold text-gray-800">Issue #{issue.issueNumber}</div>
-                <div className="text-sm text-gray-600">{issue.location}</div>
+                <div className="font-semibold text-gray-900 text-sm">Issue #{issue.issueNumber}</div>
+                <div className="text-gray-600 text-sm mt-1">{issue.location}</div>
               </div>
               <StatusBadge status={issue.status} />
             </div>
 
-            <p className="text-gray-700 text-sm mb-3">{issue.description}</p>
+            <p className="text-gray-700 text-sm mb-4">{issue.description}</p>
 
-            <div className="flex gap-2 mb-3">
+            <div className="flex gap-2 mb-4">
               {issue.shopDrawing?.thumbnail ? (
                 <ImagePreview thumbnail={issue.shopDrawing.thumbnail} fullSrc={issue.shopDrawing.data} alt="Shop Drawing" thumbnailSize="small" />
               ) : (
@@ -238,7 +234,7 @@ const IssueTable: React.FC<IssueTableProps> = ({
                 onChange={e =>
                   handleStatusChange(issue.id, e.target.value as Issue['status'])
                 }
-                className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               >
                 <option value="Open">Open</option>
                 <option value="Work Ongoing">Work Ongoing</option>
@@ -248,13 +244,13 @@ const IssueTable: React.FC<IssueTableProps> = ({
               <div className="flex gap-2">
                 <button
                   onClick={() => onViewDetails(issue)}
-                  className="flex-1 px-3 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                  className="flex-1 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
                 >
                   Details
                 </button>
                 <button
                   onClick={() => onDelete(issue.id)}
-                  className="flex-1 px-3 py-2 text-sm bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                  className="flex-1 px-3 py-2 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
                 >
                   Delete
                 </button>
@@ -265,9 +261,9 @@ const IssueTable: React.FC<IssueTableProps> = ({
       </div>
 
       {filteredAndSortedIssues.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-4xl mb-4">📭</div>
-          <p className="text-gray-600 font-semibold">No issues found</p>
+        <div className="text-center py-16">
+          <div className="text-5xl mb-3">📭</div>
+          <p className="text-gray-500 font-medium text-sm">No issues found</p>
         </div>
       )}
 
@@ -278,46 +274,47 @@ const IssueTable: React.FC<IssueTableProps> = ({
           onClick={() => setClosureModal({ isOpen: false })}
         >
           <div
-            className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6"
+            className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6"
             onClick={e => e.stopPropagation()}
           >
-            <h3 className="text-xl font-bold text-gray-800 mb-4">Close Issue</h3>
-            <p className="text-gray-600 mb-4">
-              Please provide a solution description before marking this issue as closed.
+            <h3 className="text-lg font-semibold text-gray-900 mb-2">Close Issue</h3>
+            <p className="text-gray-600 text-sm mb-5">
+              Provide a solution description before marking this issue as closed.
             </p>
             <textarea
               value={solutionText}
               onChange={e => setSolutionText(e.target.value)}
               placeholder="Describe the solution..."
               rows={4}
-              className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 resize-none mb-4"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none mb-4 text-sm"
             />
-            <div className="mb-4">
-              <label className="block text-sm font-semibold text-gray-700 mb-2">Attach image with solution <span className="text-gray-400">(optional)</span></label>
+            <div className="mb-5">
+              <label className="block text-sm font-medium text-gray-700 mb-2">Attach image <span className="text-gray-400 font-normal">(optional)</span></label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={e => handleClosureImage(e.target.files?.[0] ?? null)}
+                className="w-full text-sm"
               />
               {closureImage && (
-                <div className="mt-2 flex items-center gap-2">
-                  <img src={closureImage.thumbnail} alt="closure" className="w-16 h-12 object-cover rounded-md border" />
-                  <div className="text-sm text-gray-600">{closureImage.filename}</div>
+                <div className="mt-3 flex items-center gap-3">
+                  <img src={closureImage.thumbnail} alt="closure" className="w-16 h-12 object-cover rounded-md border border-gray-200" />
+                  <div className="text-xs text-gray-600">{closureImage.filename}</div>
                 </div>
               )}
             </div>
             <div className="flex gap-3">
               <button
                 onClick={() => setClosureModal({ isOpen: false })}
-                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors text-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleClosureConfirm(closureModal.issueId!)}
-                className="flex-1 px-4 py-2.5 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-colors"
+                className="flex-1 px-4 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors text-sm"
               >
-                Confirm Closure
+                Confirm
               </button>
             </div>
           </div>
