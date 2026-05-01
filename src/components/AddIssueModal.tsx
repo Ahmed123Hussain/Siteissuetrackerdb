@@ -1,6 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { Issue } from '../types/index';
 import { processImage } from '../utils/imageHandling';
+import LoadingSpinner from './LoadingSpinner';
 
 interface AddIssueModalProps {
   isOpen: boolean;
@@ -27,6 +28,7 @@ const AddIssueModal: React.FC<AddIssueModalProps> = ({ isOpen, onClose, onAdd })
   ) => {
     try {
       setError('');
+      setIsLoading(true);
       const { data, thumbnail } = await processImage(file);
       setFormState(prev => ({
         ...prev,
@@ -36,8 +38,10 @@ const AddIssueModal: React.FC<AddIssueModalProps> = ({ isOpen, onClose, onAdd })
           filename: file.name,
         },
       }));
+      setIsLoading(false);
     } catch (err) {
       setError(`Failed to process ${field === 'shopDrawing' ? 'shop drawing' : 'site image'}`);
+      setIsLoading(false);
     }
   };
 
@@ -148,10 +152,12 @@ const AddIssueModal: React.FC<AddIssueModalProps> = ({ isOpen, onClose, onAdd })
               Shop Drawing Image <span className="text-red-500">*</span>
             </label>
             <div
-              onClick={() => shopDrawingRef.current?.click()}
-              className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all"
+              onClick={() => !isLoading && shopDrawingRef.current?.click()}
+              className={`border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              {formState.shopDrawing ? (
+              {isLoading ? (
+                <LoadingSpinner size="small" />
+              ) : formState.shopDrawing ? (
                 <div className="text-green-600 font-semibold">
                   ✓ {formState.shopDrawing.filename}
                 </div>
@@ -167,6 +173,7 @@ const AddIssueModal: React.FC<AddIssueModalProps> = ({ isOpen, onClose, onAdd })
               type="file"
               accept="image/*"
               onChange={handleShopDrawingChange}
+              disabled={isLoading}
               className="hidden"
             />
           </div>
@@ -177,10 +184,12 @@ const AddIssueModal: React.FC<AddIssueModalProps> = ({ isOpen, onClose, onAdd })
               Site Image <span className="text-gray-400">(Optional)</span>
             </label>
             <div
-              onClick={() => siteImageRef.current?.click()}
-              className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all"
+              onClick={() => !isLoading && siteImageRef.current?.click()}
+              className={`border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
-              {formState.siteImage ? (
+              {isLoading ? (
+                <LoadingSpinner size="small" />
+              ) : formState.siteImage ? (
                 <div className="text-green-600 font-semibold">
                   ✓ {formState.siteImage.filename}
                 </div>
@@ -196,6 +205,7 @@ const AddIssueModal: React.FC<AddIssueModalProps> = ({ isOpen, onClose, onAdd })
               type="file"
               accept="image/*"
               onChange={handleSiteImageChange}
+              disabled={isLoading}
               className="hidden"
             />
           </div>
