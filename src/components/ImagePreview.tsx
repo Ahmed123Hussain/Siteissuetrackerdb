@@ -127,8 +127,8 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ thumbnail, fullSrc, alt, th
               ×
             </button>
 
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="relative" style={{ maxWidth: '95vw', maxHeight: '95vh' }}>
+            <div className="absolute inset-0 flex items-center justify-center overflow-auto">
+              <div className="relative" style={{ maxWidth: '95vw', maxHeight: '95vh', overflow: 'auto' }}>
                 <img
                   ref={imgRef}
                   src={fullSrc}
