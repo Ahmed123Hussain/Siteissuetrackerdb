@@ -3,13 +3,14 @@ import './App.css';
 import IssueTable from './components/IssueTable';
 import AddIssueModal from './components/AddIssueModal';
 import IssueDetailsModal from './components/IssueDetailsModal';
+import LoadingSpinner from './components/LoadingSpinner';
 import { useIssueStorage } from './hooks/useIssueStorage';
 import { Issue } from './types/index';
 import logo from './assets/download.png';
 import PasskeyGate from './components/PasskeyGate';
 
 function App() {
-  const { issues, addIssue, updateIssue, deleteIssue } = useIssueStorage();
+  const { issues, isLoading, addIssue, updateIssue, deleteIssue } = useIssueStorage();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [selectedIssue, setSelectedIssue] = useState<Issue | null>(null);
@@ -95,12 +96,18 @@ function App() {
 
         {/* Main Content */}
         <div className="bg-white border border-gray-200 rounded-xl p-6">
-          <IssueTable
-            issues={issues}
-            onStatusChange={handleStatusChange}
-            onDelete={deleteIssue}
-            onViewDetails={handleViewDetails}
-          />
+          {isLoading ? (
+            <div className="flex items-center justify-center py-16">
+              <LoadingSpinner size="large" message="Loading issues..." />
+            </div>
+          ) : (
+            <IssueTable
+              issues={issues}
+              onStatusChange={handleStatusChange}
+              onDelete={deleteIssue}
+              onViewDetails={handleViewDetails}
+            />
+          )}
         </div>
       </div>
 
