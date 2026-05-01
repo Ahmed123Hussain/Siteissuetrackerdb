@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import LoadingSpinner from './LoadingSpinner';
 
 interface ImagePreviewProps {
   thumbnail: string;
@@ -12,6 +13,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ thumbnail, fullSrc, alt, th
   const [scale, setScale] = useState(1);
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
+  const [isImageLoading, setIsImageLoading] = useState(true);
   const startPan = useRef<{ x: number; y: number } | null>(null);
   const lastTranslate = useRef({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -28,6 +30,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ thumbnail, fullSrc, alt, th
     if (isModalOpen) {
       const prev = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
+      setIsImageLoading(true);
       return () => { document.body.style.overflow = prev; };
     }
     return;
@@ -128,12 +131,19 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ thumbnail, fullSrc, alt, th
             </button>
 
             <div className="absolute inset-0 flex items-center justify-center overflow-auto">
+              {isImageLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-40">
+                  <LoadingSpinner size="large" message="Loading image..." />
+                </div>
+              )}
               <div className="relative" style={{ maxWidth: '95vw', maxHeight: '95vh', overflow: 'auto' }}>
                 <img
                   ref={imgRef}
                   src={fullSrc}
                   alt={alt}
                   draggable={false}
+                  onLoad={() => setIsImageLoading(false)}
+                  onError={() => setIsImageLoading(false)}
                   style={{
                     transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
                     transition: isPanning ? 'none' : 'transform 120ms ease-out',
