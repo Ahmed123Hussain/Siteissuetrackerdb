@@ -84,7 +84,7 @@ const AddIssueModal: React.FC<AddIssueModalProps> = ({ isOpen, onClose, onAdd })
 
     setIsLoading(true);
     try {
-      onAdd({
+      await onAdd({
         location: formState.location,
         description: formState.description,
         shopDrawing: formState.shopDrawing,
