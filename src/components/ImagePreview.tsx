@@ -13,7 +13,8 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ thumbnail, fullSrc, alt, th
   const [scale, setScale] = useState(1);
   const [translate, setTranslate] = useState({ x: 0, y: 0 });
   const [isPanning, setIsPanning] = useState(false);
-  const [isImageLoading, setIsImageLoading] = useState(true);
+  const [thumbnailLoading, setThumbnailLoading] = useState(true);
+  const [fullImageLoading, setFullImageLoading] = useState(true);
   const startPan = useRef<{ x: number; y: number } | null>(null);
   const lastTranslate = useRef({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -30,7 +31,6 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ thumbnail, fullSrc, alt, th
     if (isModalOpen) {
       const prev = document.body.style.overflow;
       document.body.style.overflow = 'hidden';
-      setIsImageLoading(true);
       return () => { document.body.style.overflow = prev; };
     }
     return;
@@ -40,9 +40,16 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ thumbnail, fullSrc, alt, th
     <>
       <button
         onClick={() => setIsModalOpen(true)}
-        className={`${sizeClasses[thumbnailSize]} rounded-lg overflow-hidden border-2 border-gray-200 hover:border-blue-500 transition-all cursor-pointer shadow-soft hover:shadow-soft-md`}
+        className={`${sizeClasses[thumbnailSize]} rounded-lg overflow-hidden border-2 border-gray-200 hover:border-blue-500 transition-all cursor-pointer shadow-soft hover:shadow-soft-md relative flex items-center justify-center bg-gray-100`}
       >
-        <img src={thumbnail} alt={alt} className="w-full h-full object-cover" />
+        {thumbnailLoading && <LoadingSpinner size="small" />}
+        <img 
+          src={thumbnail} 
+          alt={alt} 
+          className="w-full h-full object-cover"
+          onLoad={() => setThumbnailLoading(false)}
+          onError={() => setThumbnailLoading(false)}
+        />
       </button>
 
       {isModalOpen && (
@@ -131,9 +138,9 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ thumbnail, fullSrc, alt, th
             </button>
 
             <div className="absolute inset-0 flex items-center justify-center overflow-auto">
-              {isImageLoading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-40">
-                  <LoadingSpinner size="large" message="Loading image..." />
+              {fullImageLoading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black/30 rounded-md">
+                  <LoadingSpinner size="large" text="" />
                 </div>
               )}
               <div className="relative" style={{ maxWidth: '95vw', maxHeight: '95vh', overflow: 'auto' }}>
@@ -142,8 +149,8 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ thumbnail, fullSrc, alt, th
                   src={fullSrc}
                   alt={alt}
                   draggable={false}
-                  onLoad={() => setIsImageLoading(false)}
-                  onError={() => setIsImageLoading(false)}
+                  onLoad={() => setFullImageLoading(false)}
+                  onError={() => setFullImageLoading(false)}
                   style={{
                     transform: `translate(${translate.x}px, ${translate.y}px) scale(${scale})`,
                     transition: isPanning ? 'none' : 'transform 120ms ease-out',
