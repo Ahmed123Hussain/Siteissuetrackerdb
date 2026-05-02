@@ -9,7 +9,11 @@ export const useIssueStorage = () => {
     const stored = localStorage.getItem(STORAGE_KEY);
     return stored ? JSON.parse(stored) : [];
   });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(() => {
+    // Only show loading if we don't have cached data
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return !stored;
+  });
 
   // Normalize rows from Supabase to ensure required fields exist
   const normalizeIssue = (row: any): Issue => {
@@ -64,7 +68,10 @@ export const useIssueStorage = () => {
   };
 
   useEffect(() => {
-    if (!supabase) return;
+    if (!supabase) {
+      setIsLoading(false);
+      return;
+    }
 
     let mounted = true;
 
@@ -86,14 +93,14 @@ export const useIssueStorage = () => {
 
       if (error) {
         console.error('Supabase fetch error:', error);
+        if (mounted) setIsLoading(false);
         return;
       }
 
       if (mounted && data) {
         setIssues((data as any[]).map(normalizeIssue));
+        setIsLoading(false);
       }
-      
-      setIsLoading(false);
     })();
 
     const channel = supabase
