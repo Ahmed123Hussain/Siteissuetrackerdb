@@ -49,11 +49,12 @@ function App() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <img
-                src={logo}
-                alt="ELV Logo"
-                className="w-9 h-9 object-contain"
-              />
+               <img
+  src={logo}
+  alt="ELV Logo"
+  className="h-12 w-auto object-contain"
+/>
+         
               <div>
                 <h1 className="text-2xl font-semibold text-gray-900">
                   ELV Site Issue Tracker
