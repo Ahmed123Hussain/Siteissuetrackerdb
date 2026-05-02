@@ -97,8 +97,8 @@ function App() {
         {/* Main Content */}
         <div className="bg-white border border-gray-200 rounded-xl p-6">
           {isLoading ? (
-            <div className="flex items-center justify-center py-16">
-              <LoadingSpinner size="large" message="Loading issues..." />
+            <div className="flex justify-center py-16">
+              <LoadingSpinner size="large" text="Loading issues..." />
             </div>
           ) : (
             <IssueTable
