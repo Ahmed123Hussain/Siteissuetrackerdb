@@ -20,6 +20,8 @@ const AddIssueModal: React.FC<AddIssueModalProps> = ({ isOpen, onClose, onAdd })
   const shopDrawingRef = useRef<HTMLInputElement>(null);
   const siteImageRef = useRef<HTMLInputElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isProcessingShopDrawing, setIsProcessingShopDrawing] = useState(false);
+  const [isProcessingSiteImage, setIsProcessingSiteImage] = useState(false);
   const [error, setError] = useState('');
 
   const handleFileUpload = async (
@@ -28,7 +30,12 @@ const AddIssueModal: React.FC<AddIssueModalProps> = ({ isOpen, onClose, onAdd })
   ) => {
     try {
       setError('');
-      setIsLoading(true);
+      if (field === 'shopDrawing') {
+        setIsProcessingShopDrawing(true);
+      } else {
+        setIsProcessingSiteImage(true);
+      }
+
       const { data, thumbnail } = await processImage(file);
       setFormState(prev => ({
         ...prev,
@@ -38,10 +45,14 @@ const AddIssueModal: React.FC<AddIssueModalProps> = ({ isOpen, onClose, onAdd })
           filename: file.name,
         },
       }));
-      setIsLoading(false);
     } catch (err) {
       setError(`Failed to process ${field === 'shopDrawing' ? 'shop drawing' : 'site image'}`);
-      setIsLoading(false);
+    } finally {
+      if (field === 'shopDrawing') {
+        setIsProcessingShopDrawing(false);
+      } else {
+        setIsProcessingSiteImage(false);
+      }
     }
   };
 
@@ -152,11 +163,17 @@ const AddIssueModal: React.FC<AddIssueModalProps> = ({ isOpen, onClose, onAdd })
               Shop Drawing Image <span className="text-red-500">*</span>
             </label>
             <div
-              onClick={() => !isLoading && shopDrawingRef.current?.click()}
-              className={`border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={() => !isProcessingShopDrawing && shopDrawingRef.current?.click()}
+              className={`border-2 border-dashed rounded-lg p-6 text-center transition-all ${
+                isProcessingShopDrawing 
+                  ? 'border-blue-500 bg-blue-50 cursor-wait' 
+                  : 'border-gray-300 cursor-pointer hover:border-blue-500 hover:bg-blue-50'
+              }`}
             >
-              {isLoading ? (
-                <LoadingSpinner size="small" />
+              {isProcessingShopDrawing ? (
+                <div className="flex justify-center">
+                  <LoadingSpinner size="small" text="Processing..." />
+                </div>
               ) : formState.shopDrawing ? (
                 <div className="text-green-600 font-semibold">
                   ✓ {formState.shopDrawing.filename}
@@ -173,7 +190,7 @@ const AddIssueModal: React.FC<AddIssueModalProps> = ({ isOpen, onClose, onAdd })
               type="file"
               accept="image/*"
               onChange={handleShopDrawingChange}
-              disabled={isLoading}
+              disabled={isProcessingShopDrawing}
               className="hidden"
             />
           </div>
@@ -184,11 +201,17 @@ const AddIssueModal: React.FC<AddIssueModalProps> = ({ isOpen, onClose, onAdd })
               Site Image <span className="text-gray-400">(Optional)</span>
             </label>
             <div
-              onClick={() => !isLoading && siteImageRef.current?.click()}
-              className={`border-2 border-dashed border-gray-300 rounded-lg p-6 text-center cursor-pointer hover:border-blue-500 hover:bg-blue-50 transition-all ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+              onClick={() => !isProcessingSiteImage && siteImageRef.current?.click()}
+              className={`border-2 border-dashed rounded-lg p-6 text-center transition-all ${
+                isProcessingSiteImage 
+                  ? 'border-blue-500 bg-blue-50 cursor-wait' 
+                  : 'border-gray-300 cursor-pointer hover:border-blue-500 hover:bg-blue-50'
+              }`}
             >
-              {isLoading ? (
-                <LoadingSpinner size="small" />
+              {isProcessingSiteImage ? (
+                <div className="flex justify-center">
+                  <LoadingSpinner size="small" text="Processing..." />
+                </div>
               ) : formState.siteImage ? (
                 <div className="text-green-600 font-semibold">
                   ✓ {formState.siteImage.filename}
@@ -205,7 +228,7 @@ const AddIssueModal: React.FC<AddIssueModalProps> = ({ isOpen, onClose, onAdd })
               type="file"
               accept="image/*"
               onChange={handleSiteImageChange}
-              disabled={isLoading}
+              disabled={isProcessingSiteImage}
               className="hidden"
             />
           </div>
@@ -215,16 +238,24 @@ const AddIssueModal: React.FC<AddIssueModalProps> = ({ isOpen, onClose, onAdd })
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={isLoading || isProcessingShopDrawing || isProcessingSiteImage}
+              className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
-              disabled={isLoading}
-              className="flex-1 px-4 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
+              disabled={isLoading || isProcessingShopDrawing || isProcessingSiteImage}
+              className="flex-1 px-4 py-2.5 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
             >
-              {isLoading ? 'Adding...' : 'Add Issue'}
+              {isLoading ? (
+                <>
+                  <LoadingSpinner size="small" text="" />
+                  <span>Adding Issue...</span>
+                </>
+              ) : (
+                'Add Issue'
+              )}
             </button>
           </div>
         </form>
