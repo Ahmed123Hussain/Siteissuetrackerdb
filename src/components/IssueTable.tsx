@@ -3,6 +3,7 @@ import { processImage } from '../utils/imageHandling';
 import { Issue, ClosureModalState } from '../types/index';
 import StatusBadge from './StatusBadge';
 import ImagePreview from './ImagePreview';
+import LoadingSpinner from './LoadingSpinner';
 
 interface IssueTableProps {
   issues: Issue[];
@@ -20,6 +21,8 @@ const IssueTable: React.FC<IssueTableProps> = ({
   const [closureModal, setClosureModal] = useState<ClosureModalState>({ isOpen: false });
   const [solutionText, setSolutionText] = useState('');
   const [closureImage, setClosureImage] = useState<{ data: string; filename: string; thumbnail: string } | null>(null);
+  const [isProcessingClosureImage, setIsProcessingClosureImage] = useState(false);
+  const [isConfirmingClosure, setIsConfirmingClosure] = useState(false);
   const [sortConfig, setSortConfig] = useState<{ key: keyof Issue; direction: 'asc' | 'desc' }>({
     key: 'issueNumber',
     direction: 'desc',
@@ -53,24 +56,32 @@ const IssueTable: React.FC<IssueTableProps> = ({
       return 0;
     });
 
-  const handleClosureConfirm = (issueId: string) => {
+  const handleClosureConfirm = async (issueId: string) => {
     if (!solutionText.trim()) {
       alert('Please enter a solution description before closing');
       return;
     }
-    onStatusChange(issueId, 'Closed', solutionText, closureImage || undefined);
-    setClosureModal({ isOpen: false });
-    setSolutionText('');
+    setIsConfirmingClosure(true);
+    try {
+      onStatusChange(issueId, 'Closed', solutionText, closureImage || undefined);
+      setClosureModal({ isOpen: false });
+      setSolutionText('');
+      setClosureImage(null);
+    } finally {
+      setIsConfirmingClosure(false);
+    }
   };
 
   const handleClosureImage = async (file?: File | null) => {
     if (!file) return;
     try {
+      setIsProcessingClosureImage(true);
       const { data, thumbnail } = await processImage(file);
       setClosureImage({ data, thumbnail, filename: file.name });
     } catch (e) {
-      // ignore or show small error
       console.error('Failed to process closure image', e);
+    } finally {
+      setIsProcessingClosureImage(false);
     }
   };
 
@@ -271,7 +282,7 @@ const IssueTable: React.FC<IssueTableProps> = ({
       {closureModal.isOpen && (
         <div
           className="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4"
-          onClick={() => setClosureModal({ isOpen: false })}
+          onClick={() => !isConfirmingClosure && !isProcessingClosureImage && setClosureModal({ isOpen: false })}
         >
           <div
             className="bg-white rounded-lg shadow-2xl max-w-md w-full p-6"
@@ -286,17 +297,26 @@ const IssueTable: React.FC<IssueTableProps> = ({
               onChange={e => setSolutionText(e.target.value)}
               placeholder="Describe the solution..."
               rows={4}
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none mb-4 text-sm"
+              disabled={isConfirmingClosure || isProcessingClosureImage}
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent resize-none mb-4 text-sm disabled:opacity-50"
             />
             <div className="mb-5">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Attach image <span className="text-gray-400 font-normal">(optional)</span></label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Attach image <span className="text-gray-400 font-normal">(optional)</span>
+              </label>
               <input
                 type="file"
                 accept="image/*"
                 onChange={e => handleClosureImage(e.target.files?.[0] ?? null)}
-                className="w-full text-sm"
+                disabled={isProcessingClosureImage || isConfirmingClosure}
+                className="w-full text-sm disabled:opacity-50"
               />
-              {closureImage && (
+              {isProcessingClosureImage && (
+                <div className="mt-3 flex justify-center">
+                  <LoadingSpinner size="small" text="Processing..." />
+                </div>
+              )}
+              {closureImage && !isProcessingClosureImage && (
                 <div className="mt-3 flex items-center gap-3">
                   <img src={closureImage.thumbnail} alt="closure" className="w-16 h-12 object-cover rounded-md border border-gray-200" />
                   <div className="text-xs text-gray-600">{closureImage.filename}</div>
@@ -306,15 +326,24 @@ const IssueTable: React.FC<IssueTableProps> = ({
             <div className="flex gap-3">
               <button
                 onClick={() => setClosureModal({ isOpen: false })}
-                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors text-sm"
+                disabled={isConfirmingClosure || isProcessingClosureImage}
+                className="flex-1 px-4 py-2.5 border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleClosureConfirm(closureModal.issueId!)}
-                className="flex-1 px-4 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 transition-colors text-sm"
+                disabled={isConfirmingClosure || isProcessingClosureImage}
+                className="flex-1 px-4 py-2.5 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm flex items-center justify-center gap-2"
               >
-                Confirm
+                {isConfirmingClosure ? (
+                  <>
+                    <LoadingSpinner size="small" text="" />
+                    <span>Closing...</span>
+                  </>
+                ) : (
+                  'Confirm'
+                )}
               </button>
             </div>
           </div>
